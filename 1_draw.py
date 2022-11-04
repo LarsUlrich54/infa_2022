@@ -1,4 +1,4 @@
-iiiimport pygame
+import pygame
 from pygame.draw import *
 
 def new_surface (width, height, color):
