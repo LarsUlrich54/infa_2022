@@ -40,18 +40,21 @@ class Ball:
         и стен по краям окна (размер окна 800х600).
         """
         # FIXED (g == 5)
+        if self.x - self.r <= 0 and self.vx < 0:
+            self.vx = -self.vx * 0.95
+            return
+        if self.y - self.r <= 0 and self.vy < 0:
+            self.vy = -self.vy * 0.95 + 2
+            return
+        if self.x + self.r >= WIDTH and self.vx > 0:
+            self.vx = -self.vx
+            return
+        if self.y + self.r >= HEIGHT and self.vy > 0:
+            self.vy = -self.vy * 0.95 + 2
+            return
         self.x += self.vx
         self.y += self.vy
         self.vy += 2 
-        if self.x - self.r <= 0:
-            self.vx = -self.vx
-        if self.y - self.r <= 0:
-            self.vy = -self.vy
-        if self.x + self.r >= WIDTH:
-            self.vx = -self.vx
-        if self.y + self.r >= HEIGHT:
-            self.vy = -self.vy
-
     def draw(self):
         pygame.draw.circle(
             self.screen,
