@@ -30,7 +30,7 @@ class Ball:
         self.vx = 0
         self.vy = 0
         self.color = choice(GAME_COLORS)
-        self.live = 30
+        self.age = 1 
 
     def move(self):
         """Переместить мяч по прошествии единицы времени.
@@ -41,20 +41,21 @@ class Ball:
         """
         # FIXED (g == 5)
         if self.x - self.r <= 0 and self.vx < 0:
-            self.vx = -self.vx * 0.95
-            return
+            self.vx = -self.vx 
         if self.y - self.r <= 0 and self.vy < 0:
             self.vy = -self.vy * 0.95 + 2
+            self.x += vx
             return
         if self.x + self.r >= WIDTH and self.vx > 0:
             self.vx = -self.vx
-            return
         if self.y + self.r >= HEIGHT and self.vy > 0:
             self.vy = -self.vy * 0.95 + 2
+            self.x += self.vx
             return
         self.x += self.vx
         self.y += self.vy
-        self.vy += 2 
+        self.vy += 2
+        self.age += 1
     def draw(self):
         pygame.draw.circle(
             self.screen,
@@ -192,6 +193,8 @@ while not finished:
             target.new_target()
             target.hit()
             target.draw()
+        if b.age > 130:
+            balls.remove(b)
     gun.power_up()
 
 pygame.quit()
