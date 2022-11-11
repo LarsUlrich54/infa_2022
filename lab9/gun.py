@@ -22,7 +22,13 @@ HEIGHT = 600
 
 class Ball:
     def __init__(self, screen: pygame.Surface, x=65, y=440):
-        """ Конструктор класса ball Args: x - начальное положение мяча по горизонтали y - начальное положение мяча по вертикали """
+        """ the class that represents the projectile 
+        attributes: screen (pygame.surface) - the surface where the game goes on.
+                    x, y, r, vx, vy (float) - coordinates, size and velocities of the projectile.
+                    color (pygame.color) - the color of the projectile. Is set randomly from GAME_COLORS.
+                    self.age (int) - the number of frames that the projectile is existent for. The projectile is 
+                    removed when it gets "too old". 
+        """
         self.screen = screen 
         self.x = x 
         self.y = y 
@@ -33,13 +39,11 @@ class Ball:
         self.age = 1 
 
     def move(self):
-        """Переместить мяч по прошествии единицы времени.
-
-        Метод описывает перемещение мяча за один кадр перерисовки. То есть, обновляет значения
-        self.x и self.y с учетом скоростей self.vx и self.vy, силы гравитации, действующей на мяч,
-        и стен по краям окна (размер окна 800х600).
+        """Moving the ball and updates its state every quant of time.
+           
+           Updates the coordinates of the projectile and its velocity (using the laws of kinematic fall with g = 5, 
+           the bounce is not perfect - the body loses 5% of energy).
         """
-        # FIXED (g == 5)
         if self.x - self.r <= 0 and self.vx < 0:
             self.vx = -self.vx 
         if self.y - self.r <= 0 and self.vy < 0:
@@ -57,6 +61,7 @@ class Ball:
         self.vy += 2
         self.age += 1
     def draw(self):
+        ''' draws the projectile in a shape of a circle '''
         pygame.draw.circle(
             self.screen,
             self.color,
@@ -65,14 +70,16 @@ class Ball:
         )
 
     def hittest(self, obj):
-        """Функция проверяет сталкивалкивается ли данный обьект с целью, описываемой в обьекте obj.
+        """ Checks if the projectile has hit the target.
+            The condition of hit is the distance between the projectile and the object being less than the 
+            sum of radiuses.
 
         Args:
-            obj: Обьект, с которым проверяется столкновение.
+            obj (Class.Target) - the target.
         Returns:
-            Возвращает True в случае столкновения мяча и цели. В противном случае возвращает False.
+            True if there is a hit.
+            False else.
         """
-        # FIXED
         if (self.x - obj.x)**2 + (self.y - obj.y)**2 <= (self.r + obj.r)**2 :
             print("HIT")
             return True 
@@ -81,26 +88,35 @@ class Ball:
 
 class Gun:
     def __init__(self, screen):
-        self.screen = screen
-        self.f2_power = 10
-        self.f2_on = 0
+        ''' The class that represents the guns.
+        Attributes: screen (pygame.surface) - the surface where stuff goes on
+                    f2_power (int) - the power of the shot (represents the length of the barrel and
+                                     initial velovity of the projectile.
+                    f2_on (int) - atribute that represents the begining of the shot. 
+                    an (float) - atribute that represents the begining of the shot. 
+                    color (pygame.color) - gun's color.
+        '''
+        self.screen = screen 
+        self.f2_power = 10  
+        self.f2_on = 0 
         self.an = 1
-        self.color = GREY
+        self.color = GREY 
 
     def fire2_start(self, event):
+        ''' when the mouse is pushed'''
         self.f2_on = 1
 
     def fire2_end(self, event):
-        """Выстрел мячом.
-
-        Происходит при отпускании кнопки мыши.
-        Начальные значения компонент скорости мяча vx и vy зависят от положения мыши.
+        """Starts the shot
+        Called when the mouse id relesaed.
+        Creates a new ball and appends it to the list of balls.
+        event (pygame.event) - event from pygame used for interaction with user.
         """
         global balls, bullet
         bullet += 1
         new_ball = Ball(self.screen)
         new_ball.r += 5
-        self.an = math.atan2((event.pos[1]-new_ball.y), (event.pos[0]-new_ball.x))
+        self.an = -math.atan2((event.pos[1]-new_ball.y), (event.pos[0]-new_ball.x))
         new_ball.vx = self.f2_power * math.cos(self.an)
         new_ball.vy = - self.f2_power * math.sin(self.an)
         balls.append(new_ball)
@@ -108,19 +124,25 @@ class Gun:
         self.f2_power = 10
 
     def targetting(self, event):
-        """Прицеливание. Зависит от положения мыши."""
-        if event:
-            self.an = math.atan((event.pos[1]-450) / (event.pos[0]-20))
+        """Targetting. Depends on mouse position.
+            event (pygame.event) - module for interaction with user's actions. event.pos[0], event.pos[1] are mouse's
+            coordinates. 
+            Sets up the angle that the gun is pointing at (and which is going to determine projectile's initial
+            speed).
+            If the gun is active, its color is RED. If its inactive, its GREY"""
+        if event and not event.pos[1] - 450 == 0 and not event.pos[0] == 20:
+            self.an = -math.atan((event.pos[1]-450) / (event.pos[0]-20))
         if self.f2_on:
             self.color = RED
         else:
             self.color = GREY
 
     def draw(self):
-        # FIXIT DUDE WHAT ARE YOU STUPID OR SOMETHING?
+        '''Draws the Gun in a shape of a rectange with a linear barrel, that is pointing where user is aiming.'''
         pygame.draw.rect(self.screen, self.color, (40, 450, 50, 10))
-        pygame.draw.line(self.screen, self.color, (65, 440), (65 + 10 * math.cos(self.an), 440 - 50*math.sin(self.an)),         width = 5)
+        pygame.draw.line(self.screen, self.color, (65, 450), (65 + self.f2_power * math.cos(self.an), 450 - self.f2_power*math.sin(self.an)),         width = 5)
     def power_up(self):
+        '''Increases the attribute self.f2_power which represents the module of initial velocity that the projectile is          going to get''' 
         if self.f2_on:
             if self.f2_power < 100:
                 self.f2_power += 1
@@ -131,18 +153,23 @@ class Gun:
 
 class Target:
     def __init__ (self, screen):
-    # self.points = 0
-    # self.live = 1
-    # FIXED
-        """ Инициализация новой цели. """
-        self.screen = screen
+        """ The class that represents the targets. 
+            Attributes:
+                        screen (pygame.surface) - surface where the game is going on 
+                        points (int) - ????
+                        live (int) - attribute to determine if the target is alive (or hit) 
+                        x, y, r (float) - The following are atributes of target (it's position and radius) 
+                        color (pygame.color) - target's color
+        """
+        self.screen = screen 
         self.points = 0
-        self.live = 1
-        x = self.x = random.randrange(600, 780)
+        self.live = 1 
+        x = self.x = random.randrange(600, 780) 
         y = self.y = random.randrange(300, 550)
-        r = self.r = random.randrange(2, 50)
-        color = self.color = RED
+        r = self.r = random.randrange(2, 50) 
+        color = self.color = RED 
     def new_target(self):
+        ''' Updates target's size and position (creates new target for user to hit) '''
         print("NEW TARGET")
         self.live = 1
         self.points = 0
@@ -151,9 +178,10 @@ class Target:
         r = self.r = random.randrange(2, 50)
         color = self.color = RED
     def draw(self):
+        ''' Draws the target in a shape of a circle '''
         pygame.draw.circle(screen, self.color, (self.x, self.y), self.r)
     def hit(self, points=1):
-        """Попадание шарика в цель."""
+        ''' Called if the target is hit '''
         self.points += points
 
 
