@@ -1,8 +1,7 @@
 import math
 from random import choice
-
 import pygame
-
+import random
 
 FPS = 30
 
@@ -119,7 +118,7 @@ class Gun:
 
     def draw(self):
         # FIXIT DUDE WHAT ARE YOU STUPID OR SOMETHING?
-
+        pygame.draw.rect(self.screen, RED, (200, 200, 10, 10))
     def power_up(self):
         if self.f2_on:
             if self.f2_power < 100:
@@ -130,24 +129,25 @@ class Gun:
 
 
 class Target:
-    def init(self):
+    def __init__ (self, screen):
     # self.points = 0
     # self.live = 1
     # FIXED
         """ Инициализация новой цели. """
+        self.screen = screen
         self.points = 0
         self.live = 1
-        x = self.x = rnd(600, 780)
-        y = self.y = rnd(300, 550)
-        r = self.r = rnd(2, 50)
+        x = self.x = random.randrange(600, 780)
+        y = self.y = random.randrange(300, 550)
+        r = self.r = random.randrange(2, 50)
         color = self.color = RED
 
     def hit(self, points=1):
         """Попадание шарика в цель."""
         self.points += points
 
-    def draw(self, screen):
-        circle (screen, self.color, (self.x, self.y), self.r)
+    def draw(self):
+        pygame.draw.circle (self.screen, self.color, (self.x, self.y), self.r)
 
 
 pygame.init()
@@ -157,7 +157,7 @@ balls = []
 
 clock = pygame.time.Clock()
 gun = Gun(screen)
-target = Target()
+target = Target(screen)
 finished = False
 
 while not finished:
