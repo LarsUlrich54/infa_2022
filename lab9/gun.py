@@ -21,7 +21,7 @@ HEIGHT = 600
 
 
 class Ball:
-    def __init__(self, screen: pygame.Surface, x=40, y=450):
+    def __init__(self, screen: pygame.Surface, x=65, y=440):
         """ Конструктор класса ball Args: x - начальное положение мяча по горизонтали y - начальное положение мяча по вертикали """
         self.screen = screen 
         self.x = x 
@@ -44,7 +44,7 @@ class Ball:
             self.vx = -self.vx 
         if self.y - self.r <= 0 and self.vy < 0:
             self.vy = -self.vy * 0.95 + 2
-            self.x += vx
+            self.x += self.vx
             return
         if self.x + self.r >= WIDTH and self.vx > 0:
             self.vx = -self.vx
@@ -118,7 +118,8 @@ class Gun:
 
     def draw(self):
         # FIXIT DUDE WHAT ARE YOU STUPID OR SOMETHING?
-        pygame.draw.rect(self.screen, RED, (200, 200, 10, 10))
+        pygame.draw.rect(self.screen, self.color, (40, 450, 50, 10))
+        pygame.draw.line(self.screen, self.color, (65, 440), (65 + 10 * math.cos(self.an), 440 - 50*math.sin(self.an)),         width = 5)
     def power_up(self):
         if self.f2_on:
             if self.f2_power < 100:
