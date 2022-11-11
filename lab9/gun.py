@@ -3,7 +3,7 @@ from random import choice
 import pygame
 import random
 
-FPS = 30
+FPS = 60
 
 RED = 0xFF0000
 BLUE = 0x0000FF
@@ -22,15 +22,10 @@ HEIGHT = 600
 
 class Ball:
     def __init__(self, screen: pygame.Surface, x=40, y=450):
-        """ Конструктор класса ball
-
-        Args:
-        x - начальное положение мяча по горизонтали
-        y - начальное положение мяча по вертикали
-        """
-        self.screen = screen
-        self.x = x
-        self.y = y
+        """ Конструктор класса ball Args: x - начальное положение мяча по горизонтали y - начальное положение мяча по вертикали """
+        self.screen = screen 
+        self.x = x 
+        self.y = y 
         self.r = 10
         self.vx = 0
         self.vy = 0
@@ -46,15 +41,15 @@ class Ball:
         """
         # FIXED (g == 5)
         self.x += self.vx
-        self.y -= self.vy
-        self.vy -= 5
+        self.y += self.vy
+        self.vy += 2 
         if self.x - self.r <= 0:
             self.vx = -self.vx
         if self.y - self.r <= 0:
             self.vy = -self.vy
-        if self.x + r >= WIDTH:
+        if self.x + self.r >= WIDTH:
             self.vx = -self.vx
-        if self.y + r >= HEIGHT:
+        if self.y + self.r >= HEIGHT:
             self.vy = -self.vy
 
     def draw(self):
@@ -74,7 +69,8 @@ class Ball:
             Возвращает True в случае столкновения мяча и цели. В противном случае возвращает False.
         """
         # FIXED
-        if (self.x - obj.x)**2 + (self.y - obj.y)**2 <= self.r + obj.r :
+        if (self.x - obj.x)**2 + (self.y - obj.y)**2 <= (self.r + obj.r)**2 :
+            print("HIT")
             return True 
         return False
 
@@ -141,13 +137,20 @@ class Target:
         y = self.y = random.randrange(300, 550)
         r = self.r = random.randrange(2, 50)
         color = self.color = RED
-
+    def new_target(self):
+        print("NEW TARGET")
+        self.live = 1
+        self.points = 0
+        x = self.x = random.randrange(600, 780)
+        y = self.y = random.randrange(300, 550)
+        r = self.r = random.randrange(2, 50)
+        color = self.color = RED
+    def draw(self):
+        pygame.draw.circle(screen, self.color, (self.x, self.y), self.r)
     def hit(self, points=1):
         """Попадание шарика в цель."""
         self.points += points
 
-    def draw(self):
-        pygame.draw.circle (self.screen, self.color, (self.x, self.y), self.r)
 
 
 pygame.init()
@@ -183,8 +186,9 @@ while not finished:
         b.move()
         if b.hittest(target) and target.live:
             target.live = 0
+            target.new_target()
             target.hit()
-            target.init()
+            target.draw()
     gun.power_up()
 
 pygame.quit()
