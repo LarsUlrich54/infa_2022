@@ -167,15 +167,6 @@ class Target:
         x = self.x = random.randrange(600, 780) 
         y = self.y = random.randrange(300, 550)
         r = self.r = random.randrange(2, 50) 
-        color = self.color = RED 
-    def new_target(self):
-        ''' Updates target's size and position (creates new target for user to hit) '''
-        print("NEW TARGET")
-        self.live = 1
-        self.points = 0
-        x = self.x = random.randrange(600, 780)
-        y = self.y = random.randrange(300, 550)
-        r = self.r = random.randrange(2, 50)
         color = self.color = RED
     def draw(self):
         ''' Draws the target in a shape of a circle '''
@@ -183,23 +174,31 @@ class Target:
     def hit(self, points=1):
         ''' Called if the target is hit '''
         self.points += points
-
+def targets_draw(targets):
+    ''' Draws every target in targets()
+    Args:
+        targets (list) - list of all available targets
+    '''
+    for t in targets:
+        t.draw()
 
 
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 bullet = 0
 balls = []
+targets = list()
 
 clock = pygame.time.Clock()
 gun = Gun(screen)
-target = Target(screen)
+targets.append(Target(screen))
+targets.append(Target(screen))
 finished = False
 
 while not finished:
     screen.fill(WHITE)
     gun.draw()
-    target.draw()
+    targets_draw(targets)
     for b in balls:
         b.draw()
     pygame.display.update()
@@ -217,11 +216,12 @@ while not finished:
 
     for b in balls:
         b.move()
-        if b.hittest(target) and target.live:
-            target.live = 0
-            target.new_target()
-            target.hit()
-            target.draw()
+        for target in targets:
+            if b.hittest(target) and target.live:
+                target.live = 0
+                target.hit()
+                targets.remove(target)
+                targets.append(Target(screen))
         if b.age > 130:
             balls.remove(b)
     gun.power_up()
