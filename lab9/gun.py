@@ -166,7 +166,8 @@ class Target:
         self.live = 1 
         x = self.x = random.randrange(600, 780) 
         y = self.y = random.randrange(300, 550)
-        r = self.r = random.randrange(2, 50) 
+        r = self.r = random.randrange(2, 50)
+        vy = self.vy = random.randrange (1, 5) 
         color = self.color = RED
     def draw(self):
         ''' Draws the target in a shape of a circle '''
@@ -174,6 +175,16 @@ class Target:
     def hit(self, points=1):
         ''' Called if the target is hit '''
         self.points += points
+    def move(self):
+        ''' Moves the target with a certain speed '''
+        if self.y - self.r <= 0 and self.vy < 0:
+            self.vy = -self.vy 
+            return
+        if self.y + self.r >= HEIGHT and self.vy > 0:
+            self.vy = -self.vy 
+            return
+        
+        self.y += self.vy 
 def targets_draw(targets):
     ''' Draws every target in targets()
     Args:
@@ -224,6 +235,8 @@ while not finished:
                 targets.append(Target(screen))
         if b.age > 130:
             balls.remove(b)
+    for target in targets:
+        target.move()
     gun.power_up()
 
 pygame.quit()
